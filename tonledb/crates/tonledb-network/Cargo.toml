@@ -20,13 +20,6 @@ tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
 anyhow = "1"
 base64 = "0.22"
 figment = { version = "0.10", features = ["toml","env"] }
-axum-extra = { version = "0.9", features = ["typed-header"] }
-rustls = "0.23"
-tokio-rustls = "0.26"
-tower = "0.4"
-tower-http = "0.5"
-rustls-pemfile = "2"
-jsonwebtoken = "9"
+chrono = "0.4"
+once_cell = "1.19"
 argon2 = "0.5"
-rand_core = "0.6"
-tower_governor = "0.5"

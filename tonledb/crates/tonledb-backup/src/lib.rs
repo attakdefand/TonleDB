@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 use serde::{Deserialize, Serialize};
-use tonledb_core::{Db, DbError, Result, Space, Storage};
+use tonledb_core::{DbError, Result, Storage};
 use tonledb_wal::Wal;
 
 /// Backup metadata
@@ -34,7 +34,7 @@ impl PITRManager {
     }
     
     /// Create a new backup
-    pub fn create_backup<S: Storage + ?Sized>(&mut self, storage: &S, backup_id: &str) -> Result<()> {
+    pub fn create_backup<S: Storage + ?Sized>(&mut self, _storage: &S, backup_id: &str) -> Result<()> {
         // In a real implementation, this would:
         // 1. Pause writes to the database
         // 2. Copy all data files
@@ -61,7 +61,7 @@ impl PITRManager {
     }
     
     /// Restore from a backup
-    pub fn restore_backup<S: Storage + ?Sized>(&self, storage: &S, backup_id: &str) -> Result<()> {
+    pub fn restore_backup<S: Storage + ?Sized>(&self, _storage: &S, backup_id: &str) -> Result<()> {
         // Check if the backup exists
         if !self.backups.contains_key(backup_id) {
             return Err(DbError::NotFound(format!("Backup {} not found", backup_id)));
@@ -78,7 +78,7 @@ impl PITRManager {
     }
     
     /// Recover to a specific point in time
-    pub fn recover_to_time<S: Storage + ?Sized>(&self, storage: &S, timestamp: u64) -> Result<()> {
+    pub fn recover_to_time<S: Storage + ?Sized>(&self, _storage: &S, timestamp: u64) -> Result<()> {
         // In a real implementation, this would:
         // 1. Find the most recent backup before the timestamp
         // 2. Restore that backup

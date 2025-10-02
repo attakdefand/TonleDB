@@ -1,27 +1,27 @@
 [server]
 bind = "0.0.0.0:8383"
-require_tls = true
+require_tls = false
 idle_timeout_ms = 15000
 request_body_limit_bytes = 1048576
 rate_limit_rps = 100
 rate_limit_burst = 200
 
 [tls]
-enabled = true
+enabled = false
 cert_path = "./tls/server.crt"
 key_path  = "./tls/server.key"
 require_client_auth = false
 ca_path = "./tls/ca.crt"
 
 [auth]
-mode = "token"                       # "token" | "none" (JWT/MTLS hook-ready)
+mode = "none"                       # "token" | "none" (JWT/MTLS hook-ready)
 token_file = "./secrets/tokens.json"
 
 [rbac]
 default_role = "readonly"
 
 [storage]
-encrypt_at_rest = true
+encrypt_at_rest = false
 kek_env = "TLDB_KEK"
 wal_path = "./tonledb.wal"
 
@@ -30,16 +30,6 @@ enabled = true
 log_redact = true
 sink = "file"
 path = "./logs/audit.jsonl"
-
-# tonledb.toml
-
-[storage]
-data_dir = "./data"
-wal_path = "./tonledb.wal"
-cache_capacity = 100_000
-flush_interval_ms = 200
-max_segment_size_mb = 128
-fsync = true
 
 [compaction]
 strategy = "leveled"      # or "tiered"
@@ -60,15 +50,6 @@ bind = "127.0.0.1:7070"
 http_enabled = true
 grpc_enabled = false
 idle_timeout_ms = 60_000
-
-[tls]
-enabled = false
-cert = ""
-key  = ""
-
-[auth]
-mode = "disabled"         # "disabled"|"static"|"jwt"
-static_token = ""
 
 [log]
 level = "info"            # trace|debug|info|warn|error
