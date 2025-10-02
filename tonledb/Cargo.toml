@@ -9,7 +9,9 @@ members = [
   "crates/tonledb-network",
   "crates/tonledb-cli",
   "crates/tonledb-metrics",
-  "crates/tonledb-backup", "crates/tonledb-wire-pg",
+  "crates/tonledb-backup",
+  "crates/tonledb-wire-pg",
   "crates/tonledb-examples",
+  "crates/tonledb-arrow",
 ]
 resolver = "2"

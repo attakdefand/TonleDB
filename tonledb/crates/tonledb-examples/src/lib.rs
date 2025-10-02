@@ -53,3 +53,9 @@ pub mod realtime;
 
 /// Benchmarking, tracing and observability examples
 pub mod observability;
+
+/// Changefeed and event sourcing examples
+pub mod changefeed;
+
+/// Transaction examples
+pub mod transactions;

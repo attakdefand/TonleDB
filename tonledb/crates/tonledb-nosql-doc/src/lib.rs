@@ -25,11 +25,27 @@ pub fn create_collection<S: Storage + ?Sized>(storage: &S, name: &str) -> Result
 }
 
 /// Insert a new document and return its generated id (nanoid).
-pub fn insert<S: Storage + ?Sized>(storage: &S, collection: &str, mut doc: Json) -> Result<String> {
+/// If ttl_seconds is provided, the document will expire after that many seconds.
+pub fn insert_with_ttl<S: Storage + ?Sized>(
+    storage: &S, 
+    collection: &str, 
+    mut doc: Json, 
+    ttl_seconds: Option<u64>
+) -> Result<String> {
     // ensure an id field (not required but useful)
     let id = nanoid::nanoid!();
     if let Some(obj) = doc.as_object_mut() {
         obj.entry("_id".to_string()).or_insert(Json::String(id.clone()));
+        
+        // Add TTL if specified
+        if let Some(ttl) = ttl_seconds {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_millis() as i64)
+                .unwrap_or(0);
+            let ttl_epoch_ms = now + (ttl as i64 * 1000);
+            obj.insert("_ttl_epoch_ms".to_string(), Json::Number(ttl_epoch_ms.into()));
+        }
     }
     let key = doc_key(collection, &id);
     storage.put(&Space(DATA_SPACE.into()), key, serde_json::to_vec(&doc).unwrap())?;
@@ -188,4 +204,9 @@ fn is_expired(doc: &Json) -> bool {
         .and_then(|v| v.as_i64().map(|x| x as i128))
         .map(|ttl| now_ms >= ttl)
         .unwrap_or(false)
+}
+
+/// Insert a new document with optional TTL and return its generated id (nanoid).
+pub fn insert<S: Storage + ?Sized>(storage: &S, collection: &str, doc: Json) -> Result<String> {
+    insert_with_ttl(storage, collection, doc, None)
 }

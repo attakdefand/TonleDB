@@ -1,4 +1,5 @@
-Great question! Short answer: this project (TonleDB) is designed to handle **both transactional SQL workloads and flexible NoSQL (KV/Document) workloads** from the same Rust engine. Here’s what that means in practice—what you can build with it **today** and **as the roadmap lands.**
+
+** the roadmap lands.**
 
 # What it can power
 
@@ -118,9 +119,4 @@ Great question! Short answer: this project (TonleDB) is designed to handle **bot
 
 ---
 
-If you tell me the *first concrete app* you want to back (e.g., “auth/session store”, “product catalog”, “feature flags”), I’ll tailor:
 
-* recommended table/collection schemas,
-* indexes,
-* sample queries,
-* and the next engine features to prioritize for that use case.

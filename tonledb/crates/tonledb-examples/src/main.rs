@@ -3,7 +3,7 @@
 //! This binary demonstrates various Rust concurrency and parallelism concepts
 //! that can be used with the TonleDB database system.
 
-use tonledb_examples::{concurrency, parallel, async_examples, threads, bulkheads, messaging, channels, reactive, streams, coroutines, state_machines, stm, dataflow, gpu_simd, distributed, realtime, observability};
+use tonledb_examples::{concurrency, parallel, async_examples, threads, bulkheads, messaging, channels, reactive, streams, coroutines, state_machines, stm, dataflow, gpu_simd, distributed, realtime, observability, changefeed, transactions};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -77,6 +77,16 @@ async fn main() -> anyhow::Result<()> {
     // Show observability example usage information
     println!("\n17. Benchmarking, Tracing and Observability Examples:");
     observability::example_usage();
+    
+    // Show changefeed example usage information
+    println!("\n18. Changefeed and Event Sourcing Examples:");
+    println!("Running changefeed example...");
+    changefeed::run_changefeed_example()?;
+    
+    // Show transaction example usage information
+    println!("\n19. Transaction Examples:");
+    println!("Running transaction example...");
+    transactions::run_transaction_example()?;
     
     println!("\nStarting high-concurrency HTTP server...");
     println!("Press Ctrl+C to stop the server");
