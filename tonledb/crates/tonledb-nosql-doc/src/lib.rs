@@ -10,7 +10,6 @@
 //! decide to ignore expired docs (option here).
 
 use tonledb_core::{Result, Space, Storage};
-use serde::{Deserialize, Serialize};
 use serde_json::Value as Json;
 
 const CATALOG_SPACE: &str = "catalog";
@@ -174,7 +173,7 @@ fn doc_key(collection: &str, id: &str) -> Vec<u8> {
     format!("doc/{}/{}", collection, id).into_bytes()
 }
 
-fn merge_json(mut base: Json, patch: Json) -> Json {
+fn merge_json(base: Json, patch: Json) -> Json {
     match (base, patch) {
         (Json::Object(mut a), Json::Object(b)) => {
             for (k, v) in b {

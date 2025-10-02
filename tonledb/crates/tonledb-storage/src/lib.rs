@@ -11,8 +11,6 @@ pub struct InMemoryStore {
 inner: RwLock<BTreeMap<(Space, Vec<u8>), Vec<u8>>>,
 wal: Option<RwLock<tonledb_wal::Wal>>,
 cache: RwLock<CLruCache<(Space, Vec<u8>), Vec<u8>>>,
-// MVCC version storage: key -> version -> value
-versions: RwLock<BTreeMap<(Space, Vec<u8>), BTreeMap<u64, Vec<u8>>>>,
 }
 
 impl InMemoryStore {
@@ -21,7 +19,6 @@ pub fn new(cap: usize) -> Self {
         inner: RwLock::new(BTreeMap::new()), 
         wal: None, 
         cache: RwLock::new(CLruCache::new(cap.try_into().unwrap())),
-        versions: RwLock::new(BTreeMap::new()),
     } 
 }
 
@@ -37,17 +34,9 @@ Ok(Self {
     inner: RwLock::new(m), 
     wal: Some(RwLock::new(wal)), 
     cache: RwLock::new(CLruCache::new(cap.try_into().unwrap())),
-    versions: RwLock::new(BTreeMap::new()),
 })
 }
 
-/// Get current timestamp in milliseconds
-fn current_timestamp() -> u64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(0)
-}
 }
 
 impl Storage for InMemoryStore {

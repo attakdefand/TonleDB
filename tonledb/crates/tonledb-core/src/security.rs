@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use crate::{Db, DbError, Result, Space, Storage, Value};
+use crate::{DbError, Result, Space, Storage, Value};
 
 /// Security policy for row-level access control
 #[derive(Debug, Clone, Serialize, Deserialize)]
