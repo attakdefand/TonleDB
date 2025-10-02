@@ -1,0 +1,9 @@
+This file is created to trigger a GitHub Pages deployment.
+The GitHub Actions workflow should automatically deploy the package repository files to GitHub Pages.
+Users will be able to access the repository configuration files at:
+- https://attakdefand.github.io/TonleDB/tonledb.list
+- https://attakdefand.github.io/TonleDB/tonledb.repo
+- https://attakdefand.github.io/TonleDB/install.sh
+
+To install TonleDB, users can run:
+curl -sSL https://attakdefand.github.io/TonleDB/install.sh | sudo bash
