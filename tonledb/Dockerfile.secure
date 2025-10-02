@@ -1,0 +1,6 @@
+FROM gcr.io/distroless/cc-debian12:nonroot
+WORKDIR /app
+COPY target/release/tonledb /app/tonledb
+COPY config/tonledb/ /app/config/tonledb/
+USER 65532:65532
+ENTRYPOINT ["/app/tonledb","--config","/app/config/tonledb/tonledb.toml"]

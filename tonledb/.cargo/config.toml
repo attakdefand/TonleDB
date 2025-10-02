@@ -1,0 +1,15 @@
+[build]
+target-dir = "target"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = "symbols"
+panic = "abort"
+opt-level = "z"
+overflow-checks = true
+debug = false
+incremental = false
+
+[env]
+RUSTFLAGS = "-C target-cpu=native -C link-arg=-Wl,-z,relro,-z,now -C link-arg=-fstack-protector-strong"

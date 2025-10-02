@@ -1,0 +1,123 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+        
+      - name: Build repository files
+        run: |
+          # Create directory structure for GitHub Pages
+          mkdir -p _site/apt
+          mkdir -p _site/yum
+          
+          # Copy repository configuration files
+          cp repo/tonledb.list _site/
+          cp repo/tonledb.repo _site/
+          
+          # Create simple index.html
+          cat > _site/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TonleDB Package Repository</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        h1, h2 { color: #333; }
+        code { background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+        pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        .note { background-color: #fffacd; border-left: 4px solid #ffd700; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>TonleDB Package Repository</h1>
+    
+    <p>Welcome to the TonleDB package repository hosted on GitHub Pages.</p>
+    
+    <h2>Installation Instructions</h2>
+    
+    <h3>Debian/Ubuntu</h3>
+    <pre>
+curl -sSL https://attakdefand.github.io/TonleDB/tonledb.list | sudo tee /etc/apt/sources.list.d/tonledb.list
+sudo apt update
+sudo apt install tonledb
+    </pre>
+    
+    <h3>CentOS/RHEL/Fedora</h3>
+    <pre>
+# For CentOS/RHEL
+sudo yum-config-manager --add-repo https://attakdefand.github.io/TonleDB/tonledb.repo
+sudo yum install tonledb
+
+# For Fedora
+sudo dnf config-manager --add-repo https://attakdefand.github.io/TonleDB/tonledb.repo
+sudo dnf install tonledb
+    </pre>
+    
+    <h3>One-Command Installation</h3>
+    <pre>
+curl -sSL https://attakdefand.github.io/TonleDB/install.sh | sudo bash
+    </pre>
+    
+    <div class="note">
+        <p><strong>Note:</strong> Pre-built packages are available in the GitHub Releases section. 
+        This repository provides configuration files for package managers.</p>
+    </div>
+    
+    <h2>Repository Configuration Files</h2>
+    <ul>
+        <li><a href="tonledb.list">Debian/Ubuntu repository configuration</a></li>
+        <li><a href="tonledb.repo">Red Hat repository configuration</a></li>
+    </ul>
+    
+    <h2>Package Downloads</h2>
+    <p>Packages are available in the <a href="https://github.com/attakdefand/TonleDB/releases">GitHub Releases</a> section.</p>
+    
+    <h2>Documentation</h2>
+    <ul>
+        <li><a href="https://github.com/attakdefand/TonleDB">Project Repository</a></li>
+        <li><a href="https://github.com/attakdefand/TonleDB/blob/main/tonledb/official-docs/RUNNING.md">Running Instructions</a></li>
+        <li><a href="https://github.com/attakdefand/TonleDB/blob/main/tonledb/packaging/README.md">Packaging Information</a></li>
+    </ul>
+</body>
+</html>
+EOF
+          
+          # Copy installation script
+          cp packaging/install.sh _site/
+          
+          # Copy installation instructions
+          cp packaging/install.html _site/
+          
+          # Copy repository files
+          cp -r repo/apt _site/
+          cp -r repo/yum _site/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

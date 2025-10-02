@@ -1,0 +1,6 @@
+title = "TonleDB gitleaks"
+[[rules]]
+id = "generic-api-key"
+description = "Generic API key"
+regex = '''(?i)(api[_-]?key|token|secret)\s*[:=]\s*['"]?[a-z0-9_\-]{16,}['"]?'''
+entropy = 3.0

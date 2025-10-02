@@ -1,0 +1,47 @@
+name: supply-chain
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  sbom-sign-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build -p tonledb-network --release
+
+      - name: Build image
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/tonledb:${{ github.sha }} .
+
+      - name: SBOM (Syft CycloneDX)
+        uses: anchore/syft-action@v0.15.9
+        with:
+          image: ghcr.io/${{ github.repository_owner }}/tonledb:${{ github.sha }}
+          format: cyclonedx-json
+          output: sbom.cdx.json
+      - uses: actions/upload-artifact@v4
+        with: { name: sbom-cyclonedx, path: sbom.cdx.json }
+
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image
+        run: docker push ghcr.io/${{ github.repository_owner }}/tonledb:${{ github.sha }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3.5.0
+      - name: Cosign sign (keyless)
+        run: cosign sign --yes ghcr.io/${{ github.repository_owner }}/tonledb:${{ github.sha }}
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/tonledb:${{ github.sha }}
+          format: 'table'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'

@@ -1,0 +1,5 @@
+[tonledb]
+name=TonleDB Repository
+baseurl=https://repo.tonledb.org/yum/
+enabled=1
+gpgcheck=0

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+echo "[pre-push] tests (asan) + quick fuzz"
+if rustup toolchain list | grep -q nightly; then
+  RUSTFLAGS="-Z sanitizer=address" cargo +nightly test --tests
+fi
+if command -v cargo-fuzz >/dev/null 2>&1; then
+  cargo fuzz run wal_parser -- -max_total_time=10 || true
+fi

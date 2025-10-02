@@ -1,0 +1,11 @@
+target
+.git
+.github
+fuzz
+**/*.swp
+**/*.swo
+*.DS_Store
+*.tmp
+*.lock
+*.wal
+*.snap

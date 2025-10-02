@@ -1,0 +1,17 @@
+name: secure-ci
+on: [push, pull_request]
+jobs:
+  build-test-audit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+      with: { components: "clippy,rustfmt" }
+    - run: sudo apt-get update && sudo apt-get install -y libssl-dev
+    - run: cargo fmt --all -- --check
+    - run: RUSTFLAGS="-D warnings" cargo clippy --all-targets --all-features -- -D warnings
+    - run: cargo build --release
+    - run: cargo test --all --release
+    - run: cargo install cargo-audit cargo-deny || true
+    - run: cargo audit
+    - run: cargo deny check

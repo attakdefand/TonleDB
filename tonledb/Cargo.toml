@@ -1,0 +1,15 @@
+[workspace]
+members = [
+  "crates/tonledb-core",
+  "crates/tonledb-wal",
+  "crates/tonledb-storage",
+  "crates/tonledb-sql",
+  "crates/tonledb-nosql-kv",
+  "crates/tonledb-nosql-doc",
+  "crates/tonledb-network",
+  "crates/tonledb-cli",
+  "crates/tonledb-metrics",
+  "crates/tonledb-backup", "crates/tonledb-wire-pg",
+  "crates/tonledb-examples",
+]
+resolver = "2"

@@ -1,0 +1,32 @@
+[package]
+name = "tonledb-network"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+tonledb-core = { path = "../tonledb-core" }
+tonledb-storage = { path = "../tonledb-storage" }
+tonledb-sql = { path = "../tonledb-sql" }
+tonledb-nosql-kv = { path = "../tonledb-nosql-kv" }
+tonledb-nosql-doc = { path = "../tonledb-nosql-doc" }
+tonledb-metrics = { version = "0.1.0", path = "../tonledb-metrics", features = ["axum"] }
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+anyhow = "1"
+base64 = "0.22"
+figment = { version = "0.10", features = ["toml","env"] }
+axum-extra = { version = "0.9", features = ["typed-header"] }
+rustls = "0.23"
+tokio-rustls = "0.26"
+tower = "0.4"
+tower-http = "0.5"
+rustls-pemfile = "2"
+jsonwebtoken = "9"
+argon2 = "0.5"
+rand_core = "0.6"
+tower_governor = "0.5"

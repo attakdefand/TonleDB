@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tonledb
+  namespace: tonledb-ns
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: tonledb } }
+  template:
+    metadata:
+      labels: { app: tonledb }
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/tonledb: localhost/tonledb
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: 2000
+      containers:
+        - name: tonledb
+          image: ghcr.io/OWNER/tonledb:latest
+          ports: [{ containerPort: 8383 }]
+          env:
+            - name: TLDB_KEK
+              valueFrom: { secretKeyRef: { name: tonledb-secrets, key: kek } }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+          resources:
+            requests: { cpu: "250m", memory: "256Mi" }
+            limits:   { cpu: "1",    memory: "1Gi" }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 65532
+            capabilities: { drop: ["ALL"] }
+            seccompProfile: { type: Localhost, localhostProfile: "seccomp/tonledb" }
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tonledb
+  namespace: tonledb-ns
+spec:
+  selector: { app: tonledb }
+  ports: [{ port: 8383, targetPort: 8383 }]

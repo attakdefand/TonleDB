@@ -1,0 +1,11 @@
+Package: tonledb
+Version: 0.1.0
+Section: database
+Priority: optional
+Architecture: amd64
+Depends: libc6 (>= 2.27)
+Maintainer: TonleDB Team <tonledb@example.com>
+Description: TonleDB - A hybrid SQL/NoSQL database
+ A Rust database with SQL + NoSQL over a shared storage+txn kernel.
+ Supports SQL queries, Key-Value operations, and Document storage.
+ Homepage: https://github.com/your-username/tonledb

@@ -1,0 +1,12 @@
+{
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "syscalls": [
+    { "names": ["read","write","openat","close","fstat","lseek","mmap","mprotect","munmap",
+                "rt_sigaction","rt_sigprocmask","sigreturn","brk","ioctl","pread64","pwrite64",
+                "readv","writev","access","pipe","dup","dup2","nanosleep","getpid",
+                "socket","connect","accept4","bind","listen","getsockname","setsockopt","getsockopt",
+                "sendto","recvfrom","exit","exit_group","clock_gettime","futex","sched_yield","getrandom"],
+      "action": "SCMP_ACT_ALLOW"
+    }
+  ]
+}

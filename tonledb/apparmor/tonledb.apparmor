@@ -1,0 +1,16 @@
+#include <tunables/global>
+profile tonledb flags=(attach_disconnected) {
+  network inet stream,
+  network inet6 stream,
+  capability net_bind_service,
+  deny ptrace peer=unconfined,
+  file,
+  /bin/tonledb rmix,
+  /etc/** r,
+  /lib/** r,
+  /usr/** r,
+  /proc/** r,
+  /dev/null rw,
+  /dev/urandom r,
+  /tmp/** rwk,
+}

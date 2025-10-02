@@ -1,0 +1,18 @@
+[package]
+name = "tonledb-metrics"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+# Enable this when you want an Axum-ready /metrics handler
+axum = ["dep:axum"]
+
+[dependencies]
+prometheus = "0.13"
+once_cell = "1.19"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+
+# Optional web handler
+axum = { version = "0.7", optional = true }
+time = "0.3"

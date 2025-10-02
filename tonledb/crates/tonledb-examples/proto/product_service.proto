@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package product_service;
+
+// Product entity
+message Product {
+  uint32 id = 1;
+  string name = 2;
+  double price = 3;
+}
+
+// Get product request
+message GetProductRequest {
+  uint32 product_id = 1;
+}
+
+// Get product response
+message GetProductResponse {
+  Product product = 1;
+}
+
+// Create product request
+message CreateProductRequest {
+  uint32 id = 1;
+  string name = 2;
+  double price = 3;
+}
+
+// Create product response
+message CreateProductResponse {
+  Product product = 1;
+}
+
+// Product service
+service ProductService {
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+}

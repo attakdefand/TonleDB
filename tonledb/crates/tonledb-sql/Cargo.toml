@@ -1,0 +1,12 @@
+[package]
+name = "tonledb-sql"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+tonledb-core = { path = "../tonledb-core" }
+sqlparser = "0.47"
+serde_json = "1"
+thiserror = "1"
+blake3 = "1"

@@ -1,0 +1,100 @@
+name: Deploy to GitHub Pages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+
+    - name: Build packages
+      run: |
+        cd packaging
+        # Build Debian package
+        make deb
+        
+        # Build RPM package
+        make rpm
+
+    - name: Prepare repository files
+      run: |
+        # Create directory structure for GitHub Pages
+        mkdir -p _site/apt/pool/main/t/tonledb
+        mkdir -p _site/yum/Packages
+        
+        # Copy packages to repository structure
+        cp packaging/*.deb _site/apt/pool/main/t/tonledb/
+        cp packaging/*.rpm _site/yum/Packages/
+        
+        # Copy repository configuration files
+        cp repo/tonledb.list _site/
+        cp repo/tonledb.repo _site/
+        
+        # Create simple index.html
+        cat > _site/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TonleDB Package Repository</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+        code { background-color: #f4f4f4; padding: 2px 4px; }
+    </style>
+</head>
+<body>
+    <h1>TonleDB Package Repository</h1>
+    <p>To install TonleDB, follow these instructions:</p>
+    
+    <h2>Debian/Ubuntu</h2>
+    <pre>
+curl -sSL https://attakdefand.github.io/TonleDB/tonledb.list | sudo tee /etc/apt/sources.list.d/tonledb.list
+sudo apt update
+sudo apt install tonledb
+    </pre>
+    
+    <h2>CentOS/RHEL/Fedora</h2>
+    <pre>
+# For CentOS/RHEL
+sudo yum-config-manager --add-repo https://attakdefand.github.io/TonleDB/tonledb.repo
+sudo yum install tonledb
+
+# For Fedora
+sudo dnf config-manager --add-repo https://attakdefand.github.io/TonleDB/tonledb.repo
+sudo dnf install tonledb
+    </pre>
+    
+    <h2>One-Command Installation</h2>
+    <pre>
+curl -sSL https://attakdefand.github.io/TonleDB/install.sh | sudo bash
+    </pre>
+    
+    <h2>Direct Package Downloads</h2>
+    <ul>
+        <li><a href="apt/pool/main/t/tonledb/">Debian/Ubuntu Packages (.deb)</a></li>
+        <li><a href="yum/Packages/">Red Hat Packages (.rpm)</a></li>
+    </ul>
+</body>
+</html>
+EOF
+        
+        # Copy installation script
+        cp packaging/install.sh _site/
+        
+        # Copy installation instructions
+        cp packaging/install.html _site/
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2

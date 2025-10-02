@@ -1,0 +1,20 @@
+[package]
+name = "tonledb-fuzz"
+version = "0.1.0"
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+anyhow = "1"
+
+[dependencies.tonledb-wal]
+path = "../crates/tonledb-wal"
+
+[[bin]]
+name = "wal_frame"
+path = "fuzz_targets/wal_frame.rs"
+test = false
+doc = false

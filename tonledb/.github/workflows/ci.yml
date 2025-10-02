@@ -1,0 +1,123 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint:
+    name: Lint (fmt + clippy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Cargo fmt check
+        run: cargo fmt --all -- --check
+      - name: Cargo clippy (deny warnings)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  build-test:
+    name: Build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-all-crates: true
+      - name: Build (locked)
+        run: cargo build --workspace --locked
+      - name: Test (locked)
+        run: cargo test --workspace --locked -- --nocapture
+
+  benches:
+    name: Benches (compile only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+      - name: Compile benches (no run)
+        run: cargo bench --no-run
+
+  crash-recovery:
+    name: Crash-recovery (kill -9 & replay WAL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build release server
+        run: cargo build -p tonledb-network --release
+      - name: Install curl & jq
+        run: sudo apt-get update && sudo apt-get install -y curl jq
+      - name: Launch server (background)
+        run: |
+          TMPDIR="$(mktemp -d)"
+          echo '[storage]' > tonledb.toml
+          echo 'wal_path = "'$TMPDIR'/tonledb.wal"' >> tonledb.toml
+          ./target/release/tonledb-network > $TMPDIR/server.log 2>&1 & echo $! > $TMPDIR/pid
+          # Wait for HTTP to be up
+          for i in {1..50}; do
+            if curl -fsS http://127.0.0.1:8383/health >/dev/null; then break; fi
+            sleep 0.1
+          done
+          echo "TMPDIR=$TMPDIR" >> $GITHUB_ENV
+      - name: Write some data (SQL + KV + Doc)
+        run: |
+          curl -s -X POST http://127.0.0.1:8383/sql -H 'content-type: application/json' \
+            -d '{"sql":"CREATE TABLE users(id INT, name TEXT); INSERT INTO users VALUES (1, \"ann\");"}' | jq .
+          curl -s -X POST http://127.0.0.1:8383/kv/flag_dark --data-raw 'on' | jq .
+          curl -s -X POST http://127.0.0.1:8383/doc/todos -H 'content-type: application/json' \
+            -d '{"title":"write tests","done":false}' | jq .
+      - name: Kill -9 the server
+        run: |
+          kill -9 "$(cat "$TMPDIR/pid")" || true
+          sleep 0.5
+      - name: Restart server
+        run: |
+          ./target/release/tonledb-network > $TMPDIR/server2.log 2>&1 & echo $! > $TMPDIR/pid2
+          for i in {1..50}; do
+            if curl -fsS http://127.0.0.1:8383/health >/dev/null; then break; fi
+            sleep 0.1
+          done
+      - name: Verify data survived
+        run: |
+          # SQL read-back
+          curl -s -X POST http://127.0.0.1:8383/sql -H 'content-type: application/json' \
+            -d '{"sql":"SELECT * FROM users WHERE name = \"ann\";"}' | tee /tmp/sql.json
+          test "$(jq '.[-1][0].name' /tmp/sql.json)" = '"ann"'
+          # KV read-back
+          curl -s http://127.0.0.1:8383/kv/flag_dark | tee /tmp/kv.json
+          test "$(jq -r '.value' /tmp/kv.json)" = "$(echo -n on | base64)"
+      - name: Cleanup
+        if: always()
+        run: |
+          kill -9 "$(cat "$TMPDIR/pid2")" || true
+          rm -rf "$TMPDIR"
+
+  fuzz-wal:
+    name: Fuzz WAL parser (short run)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz
+      - name: Build fuzz target
+        run: cargo fuzz build
+      - name: Run fuzz for 60 seconds
+        run: |
+          # Runs the WAL frame parser for ~60s. Adjust target name if changed.
+          cargo fuzz run wal_frame -- -max_total_time=60

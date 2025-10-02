@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tonledb-deny-all
+  namespace: tonledb-ns
+spec:
+  podSelector: { matchLabels: { app: tonledb } }
+  policyTypes: ["Ingress","Egress"]
+  ingress:
+    - from:
+        - podSelector: { matchLabels: { app: tonledb-client } }
+      ports: [{ protocol: TCP, port: 8383 }]
+  egress:
+    - to:
+        - ipBlock: { cidr: 0.0.0.0/0 }
+      ports: [{ protocol: TCP, port: 443 }]

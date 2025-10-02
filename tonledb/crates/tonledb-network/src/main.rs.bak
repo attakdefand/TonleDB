@@ -1,0 +1,70 @@
+use std::net::SocketAddr;
+use std::sync::Arc;
+use axum::{routing::{get, post, delete}, Router, extract::State, Json};
+use serde::Deserialize;
+use tonledb_core::Db;
+use figment::{Figment, providers::{Toml, Env}};
+
+
+#[derive(Clone)]
+struct AppState { db: Arc<Db> }
+
+
+#[derive(Deserialize)]
+struct Conf { storage: StorageConf, tokio: TokioConf }
+#[derive(Deserialize)]
+struct StorageConf { wal_path: Option<String>, cache_capacity: Option<usize> }
+#[derive(Deserialize)]
+struct TokioConf { worker_threads: Option<usize> }
+
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+// Load config
+let cfg: Conf = Figment::new().merge(Toml::file("tonledb.toml")).merge(Env::prefixed("TLDB_")).extract().unwrap_or_else(|_| Conf { storage: StorageConf { wal_path: Some("./tonledb.wal".into()), cache_capacity: Some(100_000) }, tokio: TokioConf { worker_threads: None } });
+
+
+tracing_subscriber::fmt().with_env_filter("info").init();
+let storage = tonledb_storage::arc_inmem_with_wal(cfg.storage.wal_path.as_deref(), cfg.storage.cache_capacity.unwrap_or(100_000));
+let db = Arc::new(tonledb_core::Db::new(storage));
+
+
+let app = Router::new()
+.route("/health", get(|| async { "ok" }))
+.route("/sql", post(sql_handler))
+.route("/kv/:key", get(kv_get).post(kv_put).route_layer(axum::middleware::from_fn(tracing_mw)))
+.route("/kv/:key", delete(kv_del))
+.route("/doc/:col", post(doc_insert))
+.with_state(AppState { db });
+
+
+let addr: SocketAddr = "0.0.0.0:8383".parse()?;
+tracing::info!(%addr, "tonledb listening");
+axum::Server::bind(&addr).serve(app.into_make_service()).await?; Ok(())
+}
+
+
+async fn tracing_mw<B>(req: axum::http::Request<B>, next: axum::middleware::Next<B>) -> Result<axum::response::Response, axum::http::StatusCode> {
+tracing::debug!(uri=?req.uri(), method=?req.method(), "request"); Ok(next.run(req).await)
+}
+
+
+#[derive(Deserialize)]
+struct SqlBody { sql: String }
+async fn sql_handler(State(app): State<AppState>, Json(p): Json<SqlBody>) -> Json<serde_json::Value> {
+let res = tonledb_sql::execute_sql(&app.db, &p.sql).map_err(|e| serde_json::json!({"error": e.to_string()})).unwrap_or_else(|e| e); Json(res)
+}
+
+
+async fn kv_get(State(app): State<AppState>, axum::extract::Path(key): axum::extract::Path<String>) -> Json<serde_json::Value> {
+let v = tonledb_nosql_kv::get(&app.db, key.as_bytes()).unwrap(); Json(match v { Some(b) => serde_json::json!({"value": base64::encode(b)}), None => serde_json::json!({"value": null}) })
+}
+async fn kv_put(State(app): State<AppState>, axum::extract::Path(key): axum::extract::Path<String>, body: String) -> Json<serde_json::Value> {
+tonledb_nosql_kv::put(&app.db, key.into_bytes(), body.into_bytes()).unwrap(); Json(serde_json::json!({"ok": true}))
+}
+async fn kv_del(State(app): State<AppState>, axum::extract::Path(key): axum::extract::Path<String>) -> Json<serde_json::Value> {
+tonledb_nosql_kv::del(&app.db, key.as_bytes()).unwrap(); Json(serde_json::json!({"ok": true}))
+}
+async fn doc_insert(State(app): State<AppState>, axum::extract::Path(col): axum::extract::Path<String>, Json(doc): Json<serde_json::Value>) -> Json<serde_json::Value> {
+let id = tonledb_nosql_doc::insert(&app.db, &col, doc).unwrap(); Json(serde_json::json!({"id": id}))
+}

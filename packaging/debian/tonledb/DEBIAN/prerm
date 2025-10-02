@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+# Stop service if systemd is available
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl stop tonledb.service || true
+    systemctl disable tonledb.service || true
+fi
+
+exit 0

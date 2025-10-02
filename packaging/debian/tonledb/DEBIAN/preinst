@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+# Create tonledb user if it doesn't exist
+if ! id tonledb >/dev/null 2>&1; then
+    useradd --system --home /var/lib/tonledb --shell /bin/false tonledb
+fi
+
+exit 0

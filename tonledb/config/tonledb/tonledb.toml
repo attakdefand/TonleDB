@@ -1,0 +1,70 @@
+# ===== TonleDB hardened config =====
+[storage]
+path        = "data"
+wal_path    = "data/tonledb.wal"
+cache_capacity = 200_000
+
+[tokio]
+worker_threads = 0  # 0 = auto, respects host cores
+
+[server]
+bind_addr   = "0.0.0.0:8443"
+max_conn    = 2000
+req_body_limit = "1MB"
+op_timeout     = "3s"
+scan_row_cap   = 100_000
+key_max_len    = 256
+path_max_depth = 8
+
+[security]
+require_tls      = true
+tls_min_version  = "1.3"
+tls_cert         = "secrets/tls/server.crt"
+tls_key          = "secrets/tls/server.key"
+# Enable this if you want client mTLS (recommended for intra-cluster S2S):
+# client_mtls_ca   = "secrets/tls/clients-ca.pem"
+
+require_auth   = true
+# JWT validation for user/API clients (RS256 recommended)
+jwt_issuer     = "https://auth.local/issuer"
+jwt_audience   = "tonledb"
+jwt_jwks_url   = "https://auth.local/.well-known/jwks.json"
+
+# Role → permissions map used for quick RBAC checks before OPA
+[security.rbac]
+super_admin = ["backup:create","backup:restore","compaction:run","config:write","kv:*","metrics:*","policy:*"]
+operator    = ["kv:read","kv:write","compaction:run","snapshot:read","metrics:read"]
+readonly    = ["kv:read","metrics:read"]
+
+[security.policy_gatekeeper]
+enabled   = true
+type      = "opa_http"
+endpoint  = "http://127.0.0.1:8181/v1/data/tonledb/allow"
+timeout_ms = 300
+
+[crypto]
+# At-rest encryption + WAL encryption (DEKs wrapped by KEK)
+enabled           = true
+key_wrap_kek_hex  = "d498b49f59046c7394c58b9a48d84faa18bf4fd5def0c5e248b91accfd91d8c6" # export a strong random below
+per_tenant_dek    = true
+wal_encryption    = true
+rotation_interval_hours = 720  # 30 days
+
+[telemetry]
+logs_format       = "json"
+log_redact_fields = ["password","secret","token","api_key","mnemonic","private_key"]
+prometheus_bind   = "0.0.0.0:9464"
+audit_log_path    = "logs/audit.log"
+
+[privacy]
+mask_patterns     = ["(?i)password\\s*:\\s*\\S+","(?i)secret\\s*:\\s*\\S+"]
+tenant_isolation  = "namespace"  # namespace|row|process
+export_strategies = ["k-anon","tokenize"]
+
+[resilience]
+rate_limit_rps    = 500
+rate_limit_burst  = 200
+pool_max_conns    = 1024
+timeouts_client   = "3s"
+timeouts_kms      = "500ms"
+kms_readonly_on_failure = true

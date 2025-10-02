@@ -1,0 +1,16 @@
+[Unit]
+Description=TonleDB Database Server
+After=network.target
+
+[Service]
+Type=simple
+User=tonledb
+Group=tonledb
+ExecStart=/usr/bin/tonledb
+WorkingDirectory=/var/lib/tonledb
+Restart=always
+RestartSec=10
+Environment=RUST_LOG=info
+
+[Install]
+WantedBy=multi-user.target

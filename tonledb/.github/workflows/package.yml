@@ -1,0 +1,64 @@
+name: Build and Package
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install build-essential debhelper dh-cargo cargo rustc
+        
+    - name: Build deb package
+      run: |
+        cd packaging
+        make deb
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: tonledb-deb-package
+        path: packaging/tonledb_*.deb
+
+  build-rpm:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install dependencies
+      run: |
+        dnf install -y rpm-build cargo rustc make
+        
+    - name: Build rpm package
+      run: |
+        cd packaging
+        make rpm
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: tonledb-rpm-package
+        path: packaging/*.rpm
+
+  release:
+    needs: [build-deb, build-rpm]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      
+    - name: Create GitHub Release
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          tonledb-deb-package/tonledb_*.deb
+          tonledb-rpm-package/*.rpm

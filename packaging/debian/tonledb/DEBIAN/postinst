@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+# Set proper ownership
+chown -R tonledb:tonledb /var/lib/tonledb
+chmod 750 /var/lib/tonledb
+
+# Create default configuration
+if [ ! -f /etc/tonledb/tonledb.toml ]; then
+    cp /usr/lib/tonledb/tonledb.toml.example /etc/tonledb/tonledb.toml
+    chown root:tonledb /etc/tonledb/tonledb.toml
+    chmod 640 /etc/tonledb/tonledb.toml
+fi
+
+# Enable and start service if systemd is available
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl daemon-reload
+    systemctl enable tonledb.service
+fi
+
+exit 0

@@ -1,0 +1,4 @@
+creation_rules:
+  - path_regex: secrets/.*\.enc\.toml$
+    encrypted_regex: '^(key_wrap_kek_hex|tls_key)$'
+    age: [""]

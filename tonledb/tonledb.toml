@@ -1,0 +1,96 @@
+[server]
+bind = "0.0.0.0:8383"
+require_tls = true
+idle_timeout_ms = 15000
+request_body_limit_bytes = 1048576
+rate_limit_rps = 100
+rate_limit_burst = 200
+
+[tls]
+enabled = true
+cert_path = "./tls/server.crt"
+key_path  = "./tls/server.key"
+require_client_auth = false
+ca_path = "./tls/ca.crt"
+
+[auth]
+mode = "token"                       # "token" | "none" (JWT/MTLS hook-ready)
+token_file = "./secrets/tokens.json"
+
+[rbac]
+default_role = "readonly"
+
+[storage]
+encrypt_at_rest = true
+kek_env = "TLDB_KEK"
+wal_path = "./tonledb.wal"
+
+[audit]
+enabled = true
+log_redact = true
+sink = "file"
+path = "./logs/audit.jsonl"
+
+# tonledb.toml
+
+[storage]
+data_dir = "./data"
+wal_path = "./tonledb.wal"
+cache_capacity = 100_000
+flush_interval_ms = 200
+max_segment_size_mb = 128
+fsync = true
+
+[compaction]
+strategy = "leveled"      # or "tiered"
+trigger_sstable = 8
+parallel_compactions = 2
+
+[gc]
+wal_retention = "3d"      # 1h, 12h, 3d, 2w
+snapshot_retention = "14d"
+
+[limits]
+max_conns = 2048
+max_request_bytes = 8_388_608
+query_timeout_ms = 30_000
+
+[network]
+bind = "127.0.0.1:7070"
+http_enabled = true
+grpc_enabled = false
+idle_timeout_ms = 60_000
+
+[tls]
+enabled = false
+cert = ""
+key  = ""
+
+[auth]
+mode = "disabled"         # "disabled"|"static"|"jwt"
+static_token = ""
+
+[log]
+level = "info"            # trace|debug|info|warn|error
+json = false
+
+[metrics]
+enabled = true
+bind = "127.0.0.1:9100"
+
+[sql]
+enabled = true
+max_plan_cache = 2048
+
+[kv]
+enabled = true
+default_bucket = "default"
+
+[replication]
+mode = "standalone"       # "standalone"|"leader"|"follower"
+node_id = "node-1"
+peer = ""
+
+[tokio]
+worker_threads = 0        # 0 = auto (num_cpus)
+blocking_threads = 512

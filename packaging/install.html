@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install TonleDB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .distribution {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .step {
+            margin: 10px 0;
+        }
+        .note {
+            background-color: #fffacd;
+            border-left: 4px solid #ffd700;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Install TonleDB</h1>
+    
+    <p>TonleDB can be installed on various Linux distributions. Choose your distribution below for installation instructions.</p>
+    
+    <div class="distribution">
+        <h2>Ubuntu/Debian</h2>
+        
+        <div class="step">
+            <h3>Option 1: Download and install package directly</h3>
+            <pre>curl -L -O https://github.com/your-username/tonledb/releases/latest/download/tonledb_0.1.0_amd64.deb
+sudo dpkg -i tonledb_0.1.0_amd64.deb
+sudo apt-get install -f</pre>
+        </div>
+        
+        <div class="step">
+            <h3>Option 2: Add repository (recommended for automatic updates)</h3>
+            <pre>echo "deb [trusted=yes] https://repo.tonledb.org/apt/ /" | sudo tee /etc/apt/sources.list.d/tonledb.list
+sudo apt update
+sudo apt install tonledb</pre>
+        </div>
+    </div>
+    
+    <div class="distribution">
+        <h2>CentOS/RHEL/Fedora</h2>
+        
+        <div class="step">
+            <h3>Option 1: Download and install package directly</h3>
+            <pre>curl -L -O https://github.com/your-username/tonledb/releases/latest/download/tonledb-0.1.0-1.x86_64.rpm
+sudo rpm -i tonledb-0.1.0-1.x86_64.rpm</pre>
+        </div>
+        
+        <div class="step">
+            <h3>Option 2: Add repository (recommended for automatic updates)</h3>
+            <pre># For CentOS/RHEL
+sudo yum-config-manager --add-repo https://repo.tonledb.org/yum/tonledb.repo
+sudo yum install tonledb
+
+# For Fedora
+sudo dnf config-manager --add-repo https://repo.tonledb.org/yum/tonledb.repo
+sudo dnf install tonledb</pre>
+        </div>
+    </div>
+    
+    <div class="distribution">
+        <h2>Other Linux Distributions</h2>
+        
+        <div class="step">
+            <h3>Using the generic installation script</h3>
+            <pre>curl -sSL https://repo.tonledb.org/install.sh | sudo bash</pre>
+        </div>
+    </div>
+    
+    <h2>Post-Installation</h2>
+    
+    <div class="step">
+        <h3>Start the service</h3>
+        <pre>sudo systemctl start tonledb</pre>
+    </div>
+    
+    <div class="step">
+        <h3>Enable auto-start on boot</h3>
+        <pre>sudo systemctl enable tonledb</pre>
+    </div>
+    
+    <div class="step">
+        <h3>Check service status</h3>
+        <pre>sudo systemctl status tonledb</pre>
+    </div>
+    
+    <div class="step">
+        <h3>View logs</h3>
+        <pre>sudo journalctl -u tonledb -f</pre>
+    </div>
+    
+    <div class="note">
+        <p><strong>Note:</strong> Replace <code>your-username</code> in the URLs above with your actual GitHub username.</p>
+    </div>
+    
+    <h2>Configuration</h2>
+    
+    <p>The default configuration file is located at <code>/etc/tonledb/tonledb.toml</code>.</p>
+    
+    <h2>Usage</h2>
+    
+    <p>Once the service is running, you can interact with TonleDB via HTTP:</p>
+    
+    <div class="step">
+        <h3>Health check</h3>
+        <pre>curl http://localhost:8080/health</pre>
+    </div>
+    
+    <div class="step">
+        <h3>SQL query</h3>
+        <pre>curl -X POST http://localhost:8080/sql \
+  -H "Content-Type: application/json" \
+  -d '{"sql": "SELECT * FROM users"}'</pre>
+    </div>
+    
+    <div class="step">
+        <h3>Key-Value operations</h3>
+        <pre>curl http://localhost:8080/kv/mykey
+curl -X POST http://localhost:8080/kv/mykey -d "myvalue"
+curl -X DELETE http://localhost:8080/kv/mykey</pre>
+    </div>
+    
+    <div class="step">
+        <h3>Document operations</h3>
+        <pre>curl -X POST http://localhost:8080/doc/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John", "age": 30}'</pre>
+    </div>
+</body>
+</html>

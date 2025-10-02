@@ -1,0 +1,10 @@
+#include <tunables/global>
+profile tonledb flags=(attach_disconnected) {
+  #include <abstractions/base>
+  /app/tonledb mr,
+  /app/** r,
+  network inet stream,
+  deny network raw,
+  deny network packet,
+  capability,
+}
