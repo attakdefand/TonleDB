@@ -24,6 +24,9 @@ TonleDB/
 │   │   ├── tonledb-nosql-doc/  # Document NoSQL interface
 │   │   ├── tonledb-network/    # HTTP API server
 │   │   ├── tonledb-metrics/    # Metrics and observability
+│   │   ├── tonledb-backup/     # Backup and recovery functionality
+│   │   ├── tonledb-arrow/      # Arrow/Parquet support for analytics
+│   │   ├── tonledb-wire-pg/    # PostgreSQL wire protocol compatibility
 │   │   └── tonledb-examples/   # Examples of Rust concurrency patterns
 │   ├── .github/
 │   │   └── workflows/          # CI/CD workflows including packaging
@@ -59,6 +62,15 @@ TonleDB/
 - LRU cache for performance optimization
 - HTTP API for easy access
 - Built-in metrics and observability
+- **Enhanced Features in v0.2.0:**
+  - Secondary indexes (B-Tree and Hash)
+  - TTL (Time-To-Live) for automatic document expiration
+  - MVCC (Multi-Version Concurrency Control)
+  - Full ACID transactions with constraint validation
+  - Arrow/Parquet support for analytics workloads
+  - Row-level security
+  - Point-in-time recovery (PITR) backups
+  - PostgreSQL wire protocol compatibility
 
 ### Concurrency Examples
 The project includes a comprehensive examples crate demonstrating:
@@ -123,6 +135,155 @@ curl -sSL https://attakdefand.github.io/TonleDB/install.sh | sudo bash
 
 ### Package Repository
 Visit our [GitHub Pages repository](https://attakdefand.github.io/TonleDB/) for installation instructions and repository configuration files.
+
+## Download and Installation
+
+### Option 1: Pre-built Packages (Recommended)
+
+Download the latest release packages from [GitHub Releases](https://github.com/attakdefand/TonleDB/releases):
+
+1. **For Debian/Ubuntu**:
+   ```bash
+   # Download the .deb package
+   wget https://github.com/attakdefand/TonleDB/releases/download/v0.2.0/tonledb_0.2.0_amd64.deb
+   
+   # Install the package
+   sudo dpkg -i tonledb_0.2.0_amd64.deb
+   sudo apt-get install -f  # Fix any dependency issues
+   ```
+
+2. **For CentOS/RHEL/Fedora**:
+   ```bash
+   # Download the .rpm package
+   wget https://github.com/attakdefand/TonleDB/releases/download/v0.2.0/tonledb-0.2.0-1.x86_64.rpm
+   
+   # Install the package
+   sudo rpm -i tonledb-0.2.0-1.x86_64.rpm
+   # Or on newer systems:
+   sudo dnf install tonledb-0.2.0-1.x86_64.rpm
+   ```
+
+3. **Start the service**:
+   ```bash
+   sudo systemctl start tonledb
+   sudo systemctl enable tonledb  # Enable auto-start on boot
+   ```
+
+### Option 2: Build from Source
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/attakdefand/TonleDB.git
+   cd TonleDB
+   ```
+
+2. **Install build dependencies**:
+   ```bash
+   # Ubuntu/Debian
+   sudo apt update
+   sudo apt install cmake nasm protobuf-compiler build-essential
+   
+   # CentOS/RHEL/Fedora
+   sudo yum install cmake nasm protobuf-compiler
+   # or for newer versions:
+   sudo dnf install cmake nasm protobuf-compiler
+   ```
+
+3. **Build the project**:
+   ```bash
+   cd tonledb
+   cargo build --release --workspace
+   ```
+
+4. **Run the database**:
+   ```bash
+   cargo run --release -p tonledb-network
+   ```
+
+## Using TonleDB
+
+### Starting the Service
+
+After installation, TonleDB runs as a systemd service:
+
+```bash
+# Start the service
+sudo systemctl start tonledb
+
+# Check service status
+sudo systemctl status tonledb
+
+# Stop the service
+sudo systemctl stop tonledb
+
+# View logs
+sudo journalctl -u tonledb -f
+```
+
+### Configuration
+
+The default configuration file is located at `/etc/tonledb/tonledb.toml`. You can modify this file to change settings like:
+
+- Server binding address and port
+- TLS settings
+- Rate limiting parameters
+- Storage paths
+- Authentication settings
+
+### API Usage
+
+Once the database is running, you can interact with it via HTTP:
+
+```bash
+# Health check
+curl http://localhost:8080/health
+
+# SQL query
+curl -X POST http://localhost:8080/sql \
+  -H "Content-Type: application/json" \
+  -d '{"sql": "SELECT * FROM users"}'
+
+# Key-Value operations
+curl http://localhost:8080/kv/mykey
+curl -X POST http://localhost:8080/kv/mykey -d "myvalue"
+curl -X DELETE http://localhost:8080/kv/mykey
+
+# Document operations
+curl -X POST http://localhost:8080/doc/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John", "age": 30}'
+```
+
+### New Features Usage
+
+#### Secondary Indexes
+```sql
+-- Create a secondary index
+CREATE INDEX idx_email ON users (email);
+
+-- Query using the index
+SELECT * FROM users WHERE email = 'user@example.com';
+```
+
+#### TTL for Documents
+```bash
+# Insert a document with TTL (expires in 3600 seconds)
+curl -X POST http://localhost:8080/doc/sessions \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": "123", "token": "abc", "_ttl": 3600}'
+```
+
+#### Transactions
+```bash
+# Begin a transaction
+curl -X POST http://localhost:8080/txn/begin
+
+# Commit a transaction
+curl -X POST http://localhost:8080/txn/commit
+
+# Abort a transaction
+curl -X POST http://localhost:8080/txn/abort
+```
 
 ## Documentation
 

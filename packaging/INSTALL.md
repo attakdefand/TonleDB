@@ -6,10 +6,10 @@ This guide explains how to install TonleDB from pre-built packages.
 
 ### From Release Packages
 
-1. Download the `.deb` package from the [releases page](https://github.com/your-username/tonledb/releases)
+1. Download the `.deb` package from the [releases page](https://github.com/attakdefand/TonleDB/releases)
 2. Install the package:
    ```bash
-   sudo dpkg -i tonledb_0.1.0_amd64.deb
+   sudo dpkg -i tonledb_0.2.0_amd64.deb
    sudo apt-get install -f  # Fix dependencies if needed
    ```
 
@@ -26,14 +26,14 @@ sudo apt install tonledb
 
 ### From Release Packages
 
-1. Download the `.rpm` package from the [releases page](https://github.com/your-username/tonledb/releases)
+1. Download the `.rpm` package from the [releases page](https://github.com/attakdefand/TonleDB/releases)
 2. Install the package:
    ```bash
    # For CentOS/RHEL
-   sudo yum install tonledb-0.1.0-1.x86_64.rpm
+   sudo yum install tonledb-0.2.0-1.x86_64.rpm
    
    # For Fedora
-   sudo dnf install tonledb-0.1.0-1.x86_64.rpm
+   sudo dnf install tonledb-0.2.0-1.x86_64.rpm
    ```
 
 ### From Package Repository (when available)
@@ -130,6 +130,37 @@ curl -X DELETE http://localhost:8080/kv/mykey
 curl -X POST http://localhost:8080/doc/users \
   -H "Content-Type: application/json" \
   -d '{"name": "John", "age": 30}'
+```
+
+### New Features Usage
+
+#### Secondary Indexes
+```sql
+-- Create a secondary index
+CREATE INDEX idx_email ON users (email);
+
+-- Query using the index
+SELECT * FROM users WHERE email = 'user@example.com';
+```
+
+#### TTL for Documents
+```bash
+# Insert a document with TTL (expires in 3600 seconds)
+curl -X POST http://localhost:8080/doc/sessions \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": "123", "token": "abc", "_ttl": 3600}'
+```
+
+#### Transactions
+```bash
+# Begin a transaction
+curl -X POST http://localhost:8080/txn/begin
+
+# Commit a transaction
+curl -X POST http://localhost:8080/txn/commit
+
+# Abort a transaction
+curl -X POST http://localhost:8080/txn/abort
 ```
 
 ## Uninstalling

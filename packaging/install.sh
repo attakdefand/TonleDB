@@ -63,7 +63,7 @@ install_deb() {
     fi
     
     # Add repository
-    echo "deb [trusted=yes] https://repo.tonledb.org/apt/ /" > /etc/apt/sources.list.d/tonledb.list
+    echo "deb [trusted=yes] https://attakdefand.github.io/TonleDB/apt/ /" > /etc/apt/sources.list.d/tonledb.list
     
     # Update package list
     apt update
@@ -97,10 +97,10 @@ install_rpm() {
     
     # Add repository
     if [ "$PACKAGE_MANAGER" = "dnf" ]; then
-        dnf config-manager --add-repo https://repo.tonledb.org/yum/tonledb.repo
+        dnf config-manager --add-repo https://attakdefand.github.io/TonleDB/yum/tonledb.repo
         dnf install -y tonledb
     else
-        yum-config-manager --add-repo https://repo.tonledb.org/yum/tonledb.repo
+        yum-config-manager --add-repo https://attakdefand.github.io/TonleDB/yum/tonledb.repo
         yum install -y tonledb
     fi
     
@@ -131,7 +131,7 @@ install_from_github() {
     fi
     
     # Download package
-    PACKAGE_URL="https://github.com/your-username/tonledb/releases/latest/download/tonledb_0.1.0_${PACKAGE_ARCH}.${PACKAGE_TYPE}"
+    PACKAGE_URL="https://github.com/attakdefand/TonleDB/releases/latest/download/tonledb_0.2.0_${PACKAGE_ARCH}.${PACKAGE_TYPE}"
     print_status "Downloading package from $PACKAGE_URL..."
     curl -L -o "/tmp/tonledb.${PACKAGE_TYPE}" "$PACKAGE_URL"
     
