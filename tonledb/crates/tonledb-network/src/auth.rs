@@ -1,7 +1,7 @@
 use std::{collections::HashMap, fs};
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use serde::Deserialize;
-use axum::{http::StatusCode, response::Response, extract::FromRequestParts};
+use axum::{http::StatusCode, response::{Response, IntoResponse}, extract::FromRequestParts};
 use axum::http::request::Parts;
 
 #[derive(Clone, Debug)]
@@ -29,6 +29,11 @@ impl TokenStore {
         let parsed = PasswordHash::new(hash).ok()?;
         Argon2::default().verify_password(token.as_bytes(), &parsed).ok()?;
         Some(Identity{ name: name.to_string(), role: role.clone() })
+    }
+}
+impl Default for TokenStore {
+    fn default() -> Self {
+        Self { map: HashMap::new() }
     }
 }
 #[derive(Clone)] pub enum AuthMode { None, Token }
