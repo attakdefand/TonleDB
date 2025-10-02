@@ -65,6 +65,88 @@ cd tonledb
 cargo test
 ```
 
+## Building Optimized Binaries
+
+To build TonleDB with full optimizations enabled (removes the "unoptimized" message):
+
+```bash
+# Build the network server (main database server)
+cd tonledb
+cargo build -p tonledb-network --release
+
+# Build the CLI tool
+cargo build -p tonledb-cli --release
+
+# Build examples
+cargo build -p tonledb-examples --release
+
+# Or build all components at once
+cargo build --release --workspace
+```
+
+For convenience, you can also use the provided build scripts:
+- On Linux/macOS: `./build-optimized.sh`
+- On Windows: `build-optimized.bat`
+
+The optimized binaries will be located in `target/release/` directory.
+
+Optimization features enabled:
+- Full LTO (Link Time Optimization)
+- Single codegen unit for maximum optimization
+- Abort-on-panic for smaller binary size
+- All debug assertions disabled
+- Overflow checks disabled
+
+## Running Optimized Binaries
+
+To run the optimized server:
+```bash
+./target/release/tonledb-network
+```
+
+To run the optimized CLI:
+```bash
+./target/release/tonledb-cli --help
+```
+
+## Cross-Platform Support
+
+TonleDB is built with Rust, making it cross-platform compatible. The same codebase works on:
+
+- **Linux** (All major distributions)
+- **Windows** (Windows 10, Windows 11, Windows Server)
+- **macOS** (macOS 10.15+, Apple Silicon and Intel)
+
+### Windows Usage
+
+On Windows, use PowerShell or Command Prompt with backslashes:
+
+```powershell
+# Build optimized binaries
+cargo build --release --workspace
+
+# Run optimized CLI
+.\target\release\tonledb-cli.exe --help
+
+# Initialize database
+.\target\release\tonledb-cli.exe init --wal mydb.wal
+```
+
+### macOS Usage
+
+On macOS, the commands are the same as Linux:
+
+```bash
+# Build optimized binaries
+cargo build --release --workspace
+
+# Run optimized CLI
+./target/release/tonledb-cli --help
+
+# Initialize database
+./target/release/tonledb-cli init --wal mydb.wal
+```
+
 ## License
 
 This project is licensed under the MIT License.

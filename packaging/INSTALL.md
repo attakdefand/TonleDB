@@ -180,3 +180,93 @@ sudo dnf remove tonledb
 ```
 
 Note: Configuration files in `/etc/tonledb/` and data in `/var/lib/tonledb/` are typically preserved during uninstallation.
+
+## Cross-Platform Support
+
+TonleDB works on Linux, Windows, and macOS. The same functionality is available across all platforms.
+
+### Windows Build Instructions
+
+1. Install Rust toolchain from [rust-lang.org](https://www.rust-lang.org/)
+2. Install Visual Studio Build Tools or Visual Studio Community with C++ development tools
+3. Clone and build:
+   ```powershell
+   git clone https://github.com/attakdefand/TonleDB.git
+   cd TonleDB\tonledb
+   cargo build --release --workspace
+   ```
+4. Run the optimized binaries:
+   ```powershell
+   .\target\release\tonledb-cli.exe --help
+   ```
+
+Note: Some advanced security features may require additional Windows-specific dependencies.
+
+### macOS Build Instructions
+
+1. Install Rust toolchain:
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+2. Install build dependencies:
+   ```bash
+   # Using Homebrew
+   brew install cmake nasm protobuf
+   
+   # Using MacPorts
+   sudo port install cmake nasm protobuf3-cpp
+   ```
+3. Clone and build:
+   ```bash
+   git clone https://github.com/attakdefand/TonleDB.git
+   cd TonleDB/tonledb
+   cargo build --release --workspace
+   ```
+4. Run the optimized binaries:
+   ```bash
+   ./target/release/tonledb-cli --help
+   ```
+
+## Building Optimized Binaries from Source
+
+If you prefer to build TonleDB from source with full optimizations:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/attakdefand/TonleDB.git
+   cd TonleDB
+   ```
+
+2. Install build dependencies:
+   ```bash
+   # Ubuntu/Debian
+   sudo apt update
+   sudo apt install cmake nasm protobuf-compiler build-essential
+   
+   # CentOS/RHEL/Fedora
+   sudo yum install cmake nasm protobuf-compiler
+   # or for newer versions:
+   sudo dnf install cmake nasm protobuf-compiler
+   ```
+
+3. Build with optimizations:
+   ```bash
+   cd tonledb
+   # Build all components with full optimizations
+   cargo build --release --workspace
+   
+   # Or build specific components
+   cargo build -p tonledb-network --release
+   cargo build -p tonledb-cli --release
+   ```
+
+4. Run the optimized binaries:
+   ```bash
+   # Run the optimized server
+   ./target/release/tonledb-network
+   
+   # Run the optimized CLI
+   ./target/release/tonledb-cli --help
+   ```
+
+The optimized binaries will be located in `tonledb/target/release/` directory and will not show the "unoptimized" message during startup.

@@ -99,6 +99,34 @@ cd tonledb
 RUST_LOG=info cargo run -p tonledb-network
 ```
 
+## Optimized Builds
+
+To build TonleDB with full optimizations (removes the "unoptimized" message):
+
+```bash
+cd tonledb
+# Build all components with optimizations
+cargo build --release --workspace
+
+# Or build specific components with optimizations
+cargo build -p tonledb-network --release
+cargo build -p tonledb-cli --release
+```
+
+The optimized binaries will be located in `tonledb/target/release/` directory.
+
+To run the optimized database server:
+```bash
+cd tonledb
+./target/release/tonledb-network
+```
+
+To run the optimized CLI:
+```bash
+cd tonledb
+./target/release/tonledb-cli --help
+```
+
 ## Installation via Package Managers
 
 TonleDB packages are hosted on GitHub Releases and can be installed via package managers.
@@ -335,3 +363,81 @@ This project is licensed under the MIT License - see the [LICENSE](tonledb/LICEN
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Cross-Platform Support
+
+TonleDB is built with Rust, making it cross-platform compatible. It can be used on:
+
+- **Linux** (Debian/Ubuntu, CentOS/RHEL, Fedora)
+- **Windows** (Windows 10, Windows 11, Windows Server)
+- **macOS** (macOS 10.15+, Apple Silicon and Intel)
+
+### Windows Installation
+
+#### Option 1: Pre-built Binaries (Coming Soon)
+Download pre-built Windows binaries from [GitHub Releases](https://github.com/attakdefand/TonleDB/releases).
+
+#### Option 2: Build from Source
+1. Install Rust toolchain from [rust-lang.org](https://www.rust-lang.org/)
+2. Install build dependencies:
+   - Install [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022)
+   - Or install [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) with C++ development tools
+3. Clone and build:
+   ```powershell
+   git clone https://github.com/attakdefand/TonleDB.git
+   cd TonleDB\tonledb
+   cargo build --release --workspace
+   ```
+4. Run the optimized binaries:
+   ```powershell
+   .\target\release\tonledb-cli.exe --help
+   ```
+
+### macOS Installation
+
+#### Option 1: Pre-built Binaries (Coming Soon)
+Download pre-built macOS binaries from [GitHub Releases](https://github.com/attakdefand/TonleDB/releases).
+
+#### Option 2: Build from Source
+1. Install Rust toolchain:
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+2. Install build dependencies:
+   ```bash
+   # Using Homebrew
+   brew install cmake nasm protobuf
+   
+   # Using MacPorts
+   sudo port install cmake nasm protobuf3-cpp
+   ```
+3. Clone and build:
+   ```bash
+   git clone https://github.com/attakdefand/TonleDB.git
+   cd TonleDB/tonledb
+   cargo build --release --workspace
+   ```
+4. Run the optimized binaries:
+   ```bash
+   ./target/release/tonledb-cli --help
+   ```
+
+### Cross-Platform Usage
+
+The same commands work across all platforms:
+
+```bash
+# Initialize database
+tonledb-cli init --wal mydb.wal
+
+# Run SQL queries
+tonledb-cli sql --query "CREATE TABLE users (id INT, name TEXT)"
+tonledb-cli sql --query "INSERT INTO users VALUES (1, 'Alice')"
+tonledb-cli sql --query "SELECT * FROM users"
+
+# Key-Value operations
+tonledb-cli kv put mykey myvalue
+tonledb-cli kv get mykey
+```
+
+Note: Some advanced security features may require platform-specific configuration.

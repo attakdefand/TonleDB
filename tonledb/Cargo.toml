@@ -15,3 +15,23 @@ members = [
   "crates/tonledb-arrow",
 ]
 resolver = "2"
+
+# Optimization profiles
+[profile.dev]
+opt-level = 1  # Basic optimizations for faster debug builds
+debug = true
+debug-assertions = true
+overflow-checks = true
+
+[profile.release]
+opt-level = 3  # Full optimizations for release builds
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = "thin"  # Link Time Optimization for better performance
+codegen-units = 1  # Better optimization but slower compile time
+panic = "abort"  # Smaller binary size
+
+[profile.bench]
+inherits = "release"
+debug = true
