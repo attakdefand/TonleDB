@@ -1,121 +1,70 @@
-# TonleDB
+# TonleDB - Enhanced Database System
 
-A hybrid database system built with Rust, supporting both SQL and NoSQL interfaces over a shared storage and transaction kernel.
+TonleDB is a hybrid database that supports both SQL and NoSQL (key-value and document) interfaces over a shared storage and transaction engine.
 
-## Features
+## Recent Enhancements
 
-This MVP supports:
-- SQL: CREATE TABLE, INSERT, SELECT (WHERE =), CREATE INDEX (single-col equality)
-- NoSQL: KV CRUD, Document insert/get
-- In-memory storage with Write-Ahead Logging (WAL) for persistence
-- LRU cache for performance optimization
-- HTTP API for easy access
-- Built-in metrics and observability
+This version of TonleDB includes significant enhancements across all roadmap phases:
 
-## Quick Start
+### Near-term Features (M1-M3)
+- **Secondary Indexes**: B-Tree and Hash indexes for improved query performance
+- **TTL for Documents**: Automatic expiration of documents after a specified time
+- **Richer Query Engine**: Support for complex WHERE clauses, ORDER BY, and LIMIT operations
+- **MVCC**: Multi-Version Concurrency Control for better concurrent access
+- **Event Sourcing/Changefeeds**: Real-time event system for database changes
 
-### Prerequisites
-- Rust and Cargo (latest stable version)
+### Mid-term Features (M4-M5)
+- **Full ACID Transactions**: Complete transaction manager with begin/commit/abort operations
+- **Constraint Validation**: Support for NOT NULL, UNIQUE, PRIMARY KEY, FOREIGN KEY, and CHECK constraints
 
-### Building Core Components (Recommended)
-```bash
-cargo build -p tonledb-core -p tonledb-storage -p tonledb-sql -p tonledb-nosql-kv -p tonledb-nosql-doc -p tonledb-metrics
-```
+### Longer-term Features (M6-M7)
+- **Arrow/Parquet Support**: Industry-standard columnar formats for analytics workloads
+- **PostgreSQL Wire Protocol Compatibility**: Integration with PostgreSQL tools and clients
+- **Row-Level Security**: Fine-grained access control at the row level
+- **Point-In-Time Recovery (PITR)**: Disaster recovery with precise time-based restoration
 
-### Running the Database
-```bash
-RUST_LOG=info cargo run -p tonledb-network
-```
+## Architecture
 
-Note: This requires CMake and NASM to be installed for the TLS dependencies. See [RUNNING.md](../official-docs/RUNNING.md) for detailed installation instructions.
+TonleDB is built with a modular architecture:
 
-## Project Structure
-
-TonleDB is organized as a Rust workspace with multiple crates:
-
-- **tonledb-core**: Core database types and traits
+- **tonledb-core**: Core data structures and interfaces
 - **tonledb-storage**: Storage engine with WAL persistence
-- **tonledb-sql**: SQL parser and executor
+- **tonledb-sql**: SQL query parser and execution engine
 - **tonledb-nosql-kv**: Key-value NoSQL interface
 - **tonledb-nosql-doc**: Document NoSQL interface
-- **tonledb-network**: HTTP API server
-- **tonledb-metrics**: Metrics and observability
-- **tonledb-examples**: Examples demonstrating Rust concurrency patterns
+- **tonledb-network**: HTTP API and network interface
+- **tonledb-wal**: Write-Ahead Logging implementation
+- **tonledb-metrics**: Observability and monitoring
+- **tonledb-cli**: Command-line interface
+- **tonledb-backup**: Backup and recovery functionality
+- **tonledb-arrow**: Arrow and Parquet support
+- **tonledb-wire-pg**: PostgreSQL wire protocol compatibility
 
-## Installation via Package Managers
+## Getting Started
 
-Pre-built packages are available for popular Linux distributions:
-
-### Debian/Ubuntu
-```bash
-# Download the .deb package from releases
-sudo dpkg -i tonledb_0.1.0_amd64.deb
-sudo apt-get install -f  # Fix dependencies if needed
-```
-
-### CentOS/RHEL/Fedora
-```bash
-# Download the .rpm package from releases
-# For CentOS/RHEL
-sudo yum install tonledb-0.1.0-1.x86_64.rpm
-
-# For Fedora
-sudo dnf install tonledb-0.1.0-1.x86_64.rpm
-```
-
-See [packaging/INSTALL.md](packaging/INSTALL.md) for detailed installation instructions.
-
-## Documentation
-
-For detailed instructions on building, running, and using TonleDB, see:
-- [RUNNING.md](../official-docs/RUNNING.md) - Complete guide to running the project
-- [Architecture Documentation](../official-docs/md.md) - System architecture documentation
-- [packaging/README.md](packaging/README.md) - Information about packaging for Linux distributions
-- [packaging/INSTALL.md](packaging/INSTALL.md) - User installation instructions
-
-## API Usage
-
-Once the database is running, you can interact with it via HTTP:
+To run TonleDB:
 
 ```bash
-# Health check
-curl http://localhost:8080/health
-
-# SQL query
-curl -X POST http://localhost:8080/sql \
-  -H "Content-Type: application/json" \
-  -d '{"sql": "SELECT * FROM users"}'
-
-# Key-Value operations
-curl http://localhost:8080/kv/mykey
-curl -X POST http://localhost:8080/kv/mykey -d "myvalue"
-curl -X DELETE http://localhost:8080/kv/mykey
-
-# Document operations
-curl -X POST http://localhost:8080/doc/users \
-  -H "Content-Type: application/json" \
-  -d '{"name": "John", "age": 30}'
+cd tonledb
+cargo run -p tonledb-network
 ```
 
-## Development
+To run examples:
+
+```bash
+cd tonledb
+cargo run -p tonledb-examples
+```
+
+## Testing
 
 To run tests:
+
 ```bash
-cargo test --workspace
+cd tonledb
+cargo test
 ```
 
-For more detailed development instructions, see [RUNNING.md](../official-docs/RUNNING.md).
+## License
 
-## Packaging
-
-This repository includes packaging files for creating distribution packages:
-
-- [packaging/](packaging/) - Contains files for Debian and RPM packaging
-- [packaging/README.md](packaging/README.md) - Detailed packaging instructions
-- [.github/workflows/package.yml](.github/workflows/package.yml) - GitHub Actions for automated packaging
-
-To build packages locally:
-```bash
-cd packaging
-make
-```
+This project is licensed under the MIT License.
