@@ -1,10 +1,10 @@
 Name:           tonledb
-Version:        0.1.0
+Version:        0.2.0
 Release:        1%{?dist}
-Summary:        TonleDB - A hybrid SQL/NoSQL database
+Summary:        TonleDB - A hybrid SQL/NoSQL database with advanced features
 
 License:        MIT
-URL:            https://github.com/your-username/tonledb
+URL:            https://github.com/attakdefand/TonleDB
 Source0:        %{name}-%{version}.tar.gz
 
 BuildRequires:  cargo rustc
@@ -14,9 +14,12 @@ Requires:       systemd
 
 %description
 TonleDB is a Rust database with SQL + NoSQL over a shared storage+txn kernel.
-This MVP supports:
+Enhanced with advanced features including:
 - SQL: CREATE TABLE, INSERT, SELECT (WHERE =), CREATE INDEX (single-col equality)
 - NoSQL: KV CRUD, Document insert/get
+- Secondary indexes, TTL for documents, MVCC, full ACID transactions
+- Arrow/Parquet support for analytics workloads
+- Row-level security and point-in-time recovery
 - In-memory + WAL persistence, LRU cache wrapper
 - HTTP API (Axum) + CLI
 
@@ -24,7 +27,7 @@ This MVP supports:
 %setup -q
 
 %build
-cargo build --release -p tonledb-core -p tonledb-storage -p tonledb-sql -p tonledb-nosql-kv -p tonledb-nosql-doc -p tonledb-metrics -p tonledb-network
+cargo build --release -p tonledb-core -p tonledb-storage -p tonledb-sql -p tonledb-nosql-kv -p tonledb-nosql-doc -p tonledb-metrics -p tonledb-network -p tonledb-backup -p tonledb-arrow -p tonledb-wire-pg
 
 %install
 mkdir -p %{buildroot}/%{_bindir}
@@ -62,5 +65,12 @@ getent passwd tonledb >/dev/null || useradd -r -g tonledb -d %{_sharedstatedir}/
 %dir %{_sharedstatedir}/tonledb
 
 %changelog
+* Sat Oct 03 2025 TonleDB Team <tonledb@example.com> - 0.2.0-1
+- Enhanced with secondary indexes, TTL for documents, MVCC
+- Added full ACID transactions and constraint validation
+- Implemented Arrow/Parquet support for analytics
+- Added row-level security and point-in-time recovery
+- Added PostgreSQL wire protocol compatibility
+
 * Sat Oct 02 2025 TonleDB Team <tonledb@example.com> - 0.1.0-1
 - Initial package

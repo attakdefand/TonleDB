@@ -56,10 +56,10 @@ build_deb() {
         exit 1
     fi
     
-    # Build the release version
+    # Build the release version with all crates including new features
     print_status "Building TonleDB release version..."
     cd ..
-    cargo build --release -p tonledb-core -p tonledb-storage -p tonledb-sql -p tonledb-nosql-kv -p tonledb-nosql-doc -p tonledb-metrics -p tonledb-network
+    cargo build --release -p tonledb-core -p tonledb-storage -p tonledb-sql -p tonledb-nosql-kv -p tonledb-nosql-doc -p tonledb-metrics -p tonledb-network -p tonledb-backup -p tonledb-arrow -p tonledb-wire-pg
     cd packaging
     
     # Copy the binary
@@ -82,9 +82,9 @@ build_deb() {
     
     # Build the package
     print_status "Building .deb package..."
-    dpkg-deb --build debian/tonledb tonledb_0.1.0_amd64.deb
+    dpkg-deb --build debian/tonledb tonledb_0.2.0_amd64.deb
     
-    print_status "Debian package built successfully: tonledb_0.1.0_amd64.deb"
+    print_status "Debian package built successfully: tonledb_0.2.0_amd64.deb"
 }
 
 # Function to build RPM package
@@ -105,7 +105,7 @@ build_rpm() {
     # Create source tarball
     print_status "Creating source tarball..."
     cd ..
-    tar -czf packaging/tonledb-0.1.0.tar.gz --exclude='target' --exclude='.git' --exclude='packaging/debian' .
+    tar -czf packaging/tonledb-0.2.0.tar.gz --exclude='target' --exclude='.git' --exclude='packaging/debian' .
     cd packaging
     
     # Build the RPM

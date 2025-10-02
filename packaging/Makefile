@@ -1,6 +1,6 @@
 # Makefile for packaging TonleDB for Linux distributions
 
-VERSION = 0.1.0
+VERSION = 0.2.0
 PACKAGE_NAME = tonledb
 
 # Directories
@@ -16,8 +16,8 @@ deb: build-deb-package
 
 # Build Debian package structure
 build-deb-package:
-	# Build the release version
-	cd .. && cargo build --release -p tonledb-core -p tonledb-storage -p tonledb-sql -p tonledb-nosql-kv -p tonledb-nosql-doc -p tonledb-metrics -p tonledb-network
+	# Build the release version with all crates including new features
+	cd .. && cargo build --release -p tonledb-core -p tonledb-storage -p tonledb-sql -p tonledb-nosql-kv -p tonledb-nosql-doc -p tonledb-metrics -p tonledb-network -p tonledb-backup -p tonledb-arrow -p tonledb-wire-pg
 	
 	# Copy the binary
 	cp ../target/release/tonledb-network $(DEB_BUILD_DIR)/usr/bin/tonledb
