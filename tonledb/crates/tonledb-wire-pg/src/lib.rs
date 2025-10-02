@@ -52,8 +52,8 @@ pub async fn parse_pg_message(stream: &mut tokio::net::TcpStream) -> Result<PgMe
             let mut skip_bytes = vec![0u8; len - 4];
             stream.read_exact(&mut skip_bytes).await?;
             
-            // Recursively parse the next message
-            parse_pg_message(stream).await
+            // Return an error for unsupported message types instead of recursing
+            Err(anyhow::anyhow!("Unsupported message type: {}", type_byte[0]))
         }
     }
 }
@@ -73,8 +73,23 @@ pub async fn send_pg_response(stream: &mut tokio::net::TcpStream, message: &str)
 
 /// Handle a PostgreSQL client connection
 pub async fn handle_pg_connection(mut stream: tokio::net::TcpStream, db: Arc<Db>) -> Result<(), anyhow::Error> {
+    // First handle the startup message
+    match parse_startup_message(&mut stream).await {
+        Ok(_) => {
+            // Send authentication ok message
+            stream.write_all(&[b'R']).await?; // Authentication message type
+            stream.write_all(&8i32.to_be_bytes()).await?; // Length
+            stream.write_all(&0i32.to_be_bytes()).await?; // Success
+        }
+        Err(e) => {
+            eprintln!("Error parsing startup message: {}", e);
+            return Err(e);
+        }
+    }
+    
     loop {
-        match parse_pg_message(&mut stream).await {
+        let message = parse_pg_message(&mut stream).await;
+        match message {
             Ok(PgMessage::Query { query }) => {
                 // Execute the query using TonleDB's SQL engine
                 match tonledb_sql::execute_sql(&db, &query) {
@@ -87,6 +102,10 @@ pub async fn handle_pg_connection(mut stream: tokio::net::TcpStream, db: Arc<Db>
                     }
                 }
             }
+            Ok(PgMessage::StartupMessage { .. }) => {
+                // Ignore additional startup messages
+                continue;
+            }
             Ok(PgMessage::Terminate) => {
                 break;
             }
@@ -98,6 +117,26 @@ pub async fn handle_pg_connection(mut stream: tokio::net::TcpStream, db: Arc<Db>
     }
     
     Ok(())
+}
+
+/// Parse PostgreSQL startup message
+async fn parse_startup_message(stream: &mut tokio::net::TcpStream) -> Result<PgMessage, anyhow::Error> {
+    let mut len_bytes = [0u8; 4];
+    stream.read_exact(&mut len_bytes).await?;
+    let len = i32::from_be_bytes(len_bytes) as usize;
+    
+    let mut version_bytes = [0u8; 4];
+    stream.read_exact(&mut version_bytes).await?;
+    let version = i32::from_be_bytes(version_bytes);
+    
+    // For simplicity, we'll just skip the rest of the startup message
+    let mut skip_bytes = vec![0u8; len - 8];
+    stream.read_exact(&mut skip_bytes).await?;
+    
+    Ok(PgMessage::StartupMessage {
+        version,
+        parameters: vec![],
+    })
 }
 
 /// Start a PostgreSQL wire protocol server
