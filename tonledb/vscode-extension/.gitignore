@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+out/
+
+# Package manager
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
