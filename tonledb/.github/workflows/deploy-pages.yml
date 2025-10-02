@@ -15,24 +15,11 @@ jobs:
     - name: Setup Pages
       uses: actions/configure-pages@v3
 
-    - name: Build packages
-      run: |
-        cd packaging
-        # Build Debian package
-        make deb
-        
-        # Build RPM package
-        make rpm
-
     - name: Prepare repository files
       run: |
         # Create directory structure for GitHub Pages
-        mkdir -p _site/apt/pool/main/t/tonledb
-        mkdir -p _site/yum/Packages
-        
-        # Copy packages to repository structure
-        cp packaging/*.deb _site/apt/pool/main/t/tonledb/
-        cp packaging/*.rpm _site/yum/Packages/
+        mkdir -p _site/apt
+        mkdir -p _site/yum
         
         # Copy repository configuration files
         cp repo/tonledb.list _site/
@@ -77,11 +64,8 @@ sudo dnf install tonledb
 curl -sSL https://attakdefand.github.io/TonleDB/install.sh | sudo bash
     </pre>
     
-    <h2>Direct Package Downloads</h2>
-    <ul>
-        <li><a href="apt/pool/main/t/tonledb/">Debian/Ubuntu Packages (.deb)</a></li>
-        <li><a href="yum/Packages/">Red Hat Packages (.rpm)</a></li>
-    </ul>
+    <h2>Package Downloads</h2>
+    <p>Packages are available in the <a href="https://github.com/attakdefand/TonleDB/releases">GitHub Releases</a> section.</p>
 </body>
 </html>
 EOF
