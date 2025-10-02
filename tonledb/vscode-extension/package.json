@@ -1,0 +1,62 @@
+{
+  "name": "tonledb-vscode",
+  "displayName": "TonleDB",
+  "description": "TonleDB language support for Visual Studio Code",
+  "version": "0.1.0",
+  "publisher": "TonleDB",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:tonledb-sql",
+    "onCommand:tonledb.connect"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "tonledb-sql",
+        "aliases": [
+          "TonleDB SQL",
+          "tonledb-sql"
+        ],
+        "extensions": [
+          ".tdb",
+          ".tonlesql"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "tonledb-sql",
+        "scopeName": "source.tonledb-sql",
+        "path": "./syntaxes/tonledb-sql.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "tonledb.connect",
+        "title": "Connect to TonleDB Instance",
+        "category": "TonleDB"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.60.0",
+    "@types/node": "^16.0.0",
+    "typescript": "^4.4.0",
+    "vscode-languageclient": "^8.0.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^8.0.0"
+  }
+}

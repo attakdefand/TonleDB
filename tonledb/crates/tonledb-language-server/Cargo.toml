@@ -1,0 +1,25 @@
+[package]
+name = "tonledb-language-server"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "tonledb-language-server"
+path = "src/main.rs"
+
+[lib]
+name = "tonledb_language_server"
+path = "src/lib.rs"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+tower-lsp = "0.20"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# TonleDB dependencies
+tonledb-core = { path = "../tonledb-core" }
+tonledb-sql = { path = "../tonledb-sql" }

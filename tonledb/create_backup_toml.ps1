@@ -1,3 +1,4 @@
+Set-Content -Path "crates\tonledb-backup\Cargo.toml" -Value @"
 [package]
 name = "tonledb-backup"
 version = "0.1.0"
@@ -15,3 +16,4 @@ zstd = "0.13"
 sha2 = "0.10"
 hmac = "0.12"
 hex = "0.4"
+"@

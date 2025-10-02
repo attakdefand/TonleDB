@@ -13,6 +13,7 @@ members = [
   "crates/tonledb-wire-pg",
   "crates/tonledb-examples",
   "crates/tonledb-arrow",
+  "crates/tonledb-language-server",
 ]
 resolver = "2"
 
